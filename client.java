@@ -29,10 +29,10 @@ public class client {
 
                 serverMessage = input.readLine();
                 if (serverMessage == null || serverMessage.equalsIgnoreCase("exit")) {
-                    System.out.println("Server disconnected.");
+                    System.out.println("Server disconnected");
                     break;
                 }
-                System.out.println(serverMessage);
+                System.out.println("Server: " + serverMessage);
             }
 
             socket.close(); 
