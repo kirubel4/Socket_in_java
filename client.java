@@ -1,43 +1,51 @@
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
-public class client {
+public class client{
     public static void main(String[] args) {
+        DataInputStream in = null;
+        DataOutputStream out = null;
+        Socket socket = null;
+
         try {
-            Socket socket = new Socket("localhost", 5000);
+            socket = new Socket("localhost", 5000);
             System.out.println("Successfully connected to the server");
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
+            Scanner scanner = new Scanner(System.in);
 
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-
-            BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
-
-            String clientMessage, serverMessage;
+            String clientMessage;
+            String serverMessage;
 
             while (true) {
-                System.out.print("You: ");
-                clientMessage = keyboard.readLine();
-                output.println(clientMessage);
-
+                System.out.print("You>> ");
+                clientMessage = scanner.nextLine();
+                out.writeUTF(clientMessage);
                 if (clientMessage.equalsIgnoreCase("exit")) {
                     System.out.println("Chat ended.");
                     break;
                 }
-
-                serverMessage = input.readLine();
-                if (serverMessage == null || serverMessage.equalsIgnoreCase("exit")) {
-                    System.out.println("Server disconnected");
+                serverMessage = in.readUTF();
+                if (serverMessage.equals("exit")) {
+                    System.out.println("Server disconnected.");
                     break;
                 }
                 System.out.println("Server: " + serverMessage);
             }
 
-            socket.close(); 
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+        } finally {
+            try {
+                if (in != null) in.close();
+                if (out != null) out.close();
+                if (socket != null) socket.close();
+            } catch (IOException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
 }
