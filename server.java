@@ -13,7 +13,7 @@ public class server {
         try (ServerSocket serverSocket = new ServerSocket(5000)) {
             System.out.println("waiting for a client to connect...");
             socket = serverSocket.accept();
-            System.out.println("Client connected.");
+            System.out.println("Client connected!!");
 
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());

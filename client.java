@@ -30,7 +30,7 @@ public class client{
                 }
                 serverMessage = in.readUTF();
                 if (serverMessage.equals("exit")) {
-                    System.out.println("Server disconnected.");
+                    System.out.println("Server disconnected!!");
                     break;
                 }
                 System.out.println("Server: " + serverMessage);
