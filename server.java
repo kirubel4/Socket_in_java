@@ -1,47 +1,44 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class server {
-    public static void main(String[] args) {
-        DataInputStream in = null;
-        DataOutputStream out = null;
-        Socket socket = null;
+    public static void main(String[] args) throws IOException {
+        System.out.println("Server started");
+        ServerSocket server = new ServerSocket(8888);
+        System.out.println("Server is waiting for connection");
+        Socket client = server.accept();
+        System.out.println("Client connected");
 
-        try (ServerSocket serverSocket = new ServerSocket(5000)) {
-            System.out.println("waiting for a client to connect...");
-            socket = serverSocket.accept();
-            System.out.println("Client connected!!");
+        BufferedReader clientInput = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        PrintWriter clientOutput = new PrintWriter(client.getOutputStream(), true);
+        BufferedReader serverInput = new BufferedReader(new InputStreamReader(System.in));
 
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
+        String messageFromClient, messageFromServer;
 
-            String clientMessage;
-            String serverMessage;
-
-            while (true) {
-                clientMessage = in.readUTF();
-                if (clientMessage.equals("exit")) {
-                    System.out.println("Client ended the chat.");
+        while (true) {
+            // Read message from client
+            if (clientInput.ready()) {
+                messageFromClient = clientInput.readLine();
+                if (messageFromClient.equalsIgnoreCase("exit")) {
+                    System.out.println("Client disconnected.");
                     break;
                 }
-                System.out.println("Client: " + clientMessage);
+                System.out.println("Client: " + messageFromClient);
+            }
 
-                serverMessage = "server get: " + clientMessage;
-                out.writeUTF(serverMessage);
+            // Read and send message from server
+            System.out.print("You: ");
+            messageFromServer = serverInput.readLine();
+            if (messageFromServer.equalsIgnoreCase("exit")) {
+                clientOutput.println("Server disconnected.");
+                break;
             }
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-        } finally {
-            try {
-                if (in != null) in.close();
-                if (out != null) out.close();
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-                System.out.println("Error while closing resources: " + e.getMessage());
-            }
+            clientOutput.println(messageFromServer);
         }
+
+        client.close();
+        server.close();
+        System.out.println("Server stopped.");
     }
 }
